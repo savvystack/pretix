@@ -336,4 +336,5 @@
             {% endif %}
         {% endfor %}
     </section>
+    {% eventsignal event "pretix.presale.signals.product_list_bottom" request=request subevent=subevent %}
 {% endfor %}

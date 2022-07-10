@@ -411,3 +411,5 @@ consent state. Receivers should return a list of ``pretix.presale.cookies.Cookie
 
 As with all event-plugin signals, the ``sender`` keyword argument will contain the event.
 """
+
+product_list_bottom = EventPluginSignal()
