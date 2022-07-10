@@ -9,11 +9,31 @@ var pretixstripe = {
     paymentRequestButton: null,
 
     'cc_request': function () {
+        var cardholder = $("#stripe_cardholder_name").val().trim();
+        var cardholderError = cardholder == ""? "Cardholder name is empty." : cardholder.length < 5 ? "Cardholder name is invalid." : undefined;
+        if (cardholderError) {
+            $("#stripe_cardholder_name").addClass('has-error')
+            $(".stripe-errors").stop().hide().removeClass("sr-only");
+            $(".stripe-errors").html("<div class='alert alert-danger'>" + cardholderError + "</div>");
+            $(".stripe-errors").slideDown();
+            return;
+        }
+
         waitingDialog.show(gettext("Contacting Stripe …"));
         $(".stripe-errors").hide();
 
+        console.log('cardholder:', cardholder)
+        console.log('email:', $("#stripe_order_email").val())
+        
         // ToDo: 'card' --> proper type of payment method
-        pretixstripe.stripe.createPaymentMethod('card', pretixstripe.card).then(function (result) {
+        pretixstripe.stripe.createPaymentMethod({
+            type: 'card', 
+            card: pretixstripe.card,
+            billing_details: {
+                name: cardholder,
+                email: $("#stripe_order_email").val(),
+            }
+        }).then(function (result) {
             waitingDialog.hide();
             if (result.error) {
                 $(".stripe-errors").stop().hide().removeClass("sr-only");
@@ -93,9 +113,9 @@ var pretixstripe = {
                                     'color': '#555555',
                                     'lineHeight': '1.42857',
                                     'border': '1px solid #ccc',
-                                    '::placeholder': {
-                                        color: 'rgba(0,0,0,0.4)',
-                                    },
+                                    // '::placeholder': {
+                                    //     color: 'rgba(0,0,0,0.4)',
+                                    // },
                                 },
                                 'invalid': {
                                     'color': 'red',
@@ -219,6 +239,16 @@ $(function () {
     if ($("#stripe-current-card").length) {
         $("#stripe-elements").hide();
     }
+
+    $("#stripe_cardholder_name").change(
+        function (e) {
+            if ($("#stripe_cardholder_name").val().trim() == "") {
+                $("#stripe_cardholder_name").addClass('has-error')
+            } else {
+                $("#stripe_cardholder_name").removeClass('has-error')
+            }
+        }
+    )
 
     $('.stripe-container').closest("form").submit(
         function () {

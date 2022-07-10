@@ -72,6 +72,7 @@ from pretix.plugins.stripe.models import (
 from pretix.plugins.stripe.tasks import (
     get_stripe_account_key, stripe_verify_domain,
 )
+from pretix.presale.views.cart import cart_session
 
 logger = logging.getLogger('pretix.plugins.stripe')
 
@@ -715,7 +716,8 @@ class StripeCC(StripeMethod):
             'event': self.event,
             'total': self._decimal_to_int(total),
             'settings': self.settings,
-            'is_moto': self.is_moto(request)
+            'is_moto': self.is_moto(request),
+            'email': cart_session(request).get('email', ''),
         }
         return template.render(ctx)
 
@@ -727,6 +729,7 @@ class StripeCC(StripeMethod):
         request.session['payment_stripe_payment_method_id'] = payment_method_id
         request.session['payment_stripe_brand'] = request.POST.get('stripe_card_brand', '')
         request.session['payment_stripe_last4'] = request.POST.get('stripe_card_last4', '')
+        request.session['payment_stripe_cardholder_name'] = request.POST.get('stripe_cardholder_name', '')
         if payment_method_id == '':
             messages.warning(request, _('You may need to enable JavaScript for Stripe payments.'))
             return False
@@ -737,6 +740,7 @@ class StripeCC(StripeMethod):
             return self._handle_payment_intent(request, payment)
         finally:
             del request.session['payment_stripe_payment_method_id']
+            del request.session['payment_stripe_cardholder_name']
 
     def is_moto(self, request, payment=None) -> bool:
         # We don't have a payment yet when checking if we should display the MOTO-flag

@@ -23,6 +23,8 @@
                 You already entered a card number that we will use to charge the payment amount.
             {% endblocktrans %}</p>
             <dl class="dl-horizontal">
+                <dt>Cardholder name</dt>
+                <dd id="stripe_cardholder_name_display">{{ request.session.payment_stripe_cardholder_name }}</dd>
                 <dt>{% trans "Card type" %}</dt>
                 <dd id="stripe_card_brand_display">{{ request.session.payment_stripe_brand }}</dd>
                 <dt>{% trans "Card number" %}</dt>
@@ -39,6 +41,8 @@
 
     <div class="row equal" id="stripe-elements">
         <div class="col-md-5 vcenter stripe-card-holder">
+            <input type="text" name="stripe_cardholder_name" value="{{ request.session.payment_stripe_cardholder_name }}"
+                class="form-control" placeholder="Cardholder name" title="Cardholder name" id="stripe_cardholder_name" aria-label="Cardholder name">
             <div id="stripe-card" class="form-control">
                 <span class="fa fa-spinner fa-spin"></span>
                 <!-- a Stripe Element will be inserted here. -->
@@ -71,5 +75,6 @@
         <input type="hidden" name="stripe_card_brand" value="{{ request.session.payment_stripe_brand }}"
                 id="stripe_card_brand"/>
         <input type="hidden" id="stripe_currency" value="{{ event.currency }}"/>
+        <input type="hidden" id="stripe_order_email" value="{{ email }}"/>
     </p>
 </div>
