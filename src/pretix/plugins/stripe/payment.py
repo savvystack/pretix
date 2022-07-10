@@ -373,7 +373,7 @@ class StripeMethod(BasePaymentProvider):
         return d
 
     def statement_descriptor(self, payment, length=22):
-        return '{event}-{code} {eventname}'.format(
+        return '{eventname} {code}'.format(
             event=self.event.slug.upper(),
             code=payment.order.code,
             eventname=re.sub('[^a-zA-Z0-9 ]', '', str(self.event.name))
